@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-09 18:17:56
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-11 12:26:36
+ * @LastEditTime: 2023-09-11 20:05:50
  * @FilePath: /finalVirtualList/.eslintrc.cjs
  * @Description: 
  */
@@ -33,6 +33,7 @@ module.exports =  {
       '@typescript-eslint/adjacent-overload-signatures': 'error',
       "@typescript-eslint/ban-types": 0,
       "@typescript-eslint/ban-ts-comment": 0,
+      "@typescript-eslint/no-unused-vars": 0,
       //vue3 rules config
         "vue/multi-word-component-names": 0,
     },
