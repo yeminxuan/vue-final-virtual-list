@@ -1,31 +1,53 @@
-/*
- * @Author: 叶敏轩 mc20000406@163.com
- * @Date: 2023-09-09 18:16:22
- * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-09 19:36:24
- * @FilePath: /finalVirtualList/commitlint.config.cjs
- * @Description:
- */
 module.exports = {
-  extends: ["@commitlint/config-conventional"],
+  extends: ['@commitlint/config-conventional'],
   rules: {
     "type-case": [2, "always", ["lower-case"]],
     "type-enum": [
       2,
       "always",
       [
-        "feat", //新功能（feature）
-        "fix", //修补bug
-        "doc", //文档（documentation）
-        "build", //影响构建系统或外部依赖项的更改(maven,gradle,npm 等等)
-        "chore", //对非 src 和 test 目录的修改
-        "perf", //性能 (提高代码性能的改变)
-        "refactor", //重构
-        "style", // 格式（不影响代码运行的变动,空格,格式化,等等）
-        "test", //增加测试或者修改测试
-        "revert", //Revert a commit
-        "config", //配置
+        "feat", 
+        "fix", 
+        "docs",
+        "build", 
+        "chore",
+        "perf",
+        "refactor",
+        "style",
+        "test",
+        "revert",
+        "config",
+        "ci"
       ],
     ],
   },
+  prompt: {
+    messages: {
+      type: 'Select the type of change that you\'re committing:',
+      scope: 'Denote the SCOPE of this change (optional):',
+      customScope: 'Denote the SCOPE of this change:',
+      subject: 'Write a SHORT, IMPERATIVE tense description of the change:\n',
+      body: 'Provide a LONGER description of the change (optional). Use "|" to break new line:\n',
+      breaking: 'List any BREAKING CHANGES (optional). Use "|" to break new line:\n',
+      footerPrefixSelect: 'Select the ISSUES type of changeList by this change (optional):',
+      customFooterPrefix: 'Input ISSUES prefix:',
+      footer: 'List any ISSUES by this change. E.g.: #31, #34:\n',
+      generatingByAI: 'Generating your AI commit subject...',
+      generatedSelectByAI: 'Select suitable subject by AI generated:',
+      confirmCommit: 'Are you sure you want to proceed with the commit above?'
+    },
+    types: [
+      { value: 'feat', name: 'feat:     A new feature'},
+      { value: 'fix', name: 'fix:      A bug fix'},
+      { value: 'docs', name: 'docs:     Documentation only changes'},
+      { value: 'style', name: 'style:    Changes that do not affect the meaning of the code'},
+      { value: 'refactor', name: 'refactor: A code change that neither fixes a bug nor adds a feature'},
+      { value: 'perf', name: 'perf:     A code change that improves performance'},
+      { value: 'test', name: 'test:     Adding missing tests or correcting existing tests'},
+      { value: 'build', name: 'build:    Changes that affect the build system or external dependencies'},
+      { value: 'ci', name: 'ci:       Changes to our CI configuration files and scripts'},
+      { value: 'chore', name: 'chore:    Other changes that don\'t modify src or test files'},
+      { value: 'revert', name: 'revert:   Reverts a previous commit'}
+    ],
+  }
 };

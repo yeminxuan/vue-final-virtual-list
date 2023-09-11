@@ -9,8 +9,12 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "standard-changelog"
     }
+  },
+  "scripts": {
+    "cz": "czg"
   },
   "lint-staged": {
     "**/*.ts": [
@@ -26,20 +30,22 @@
       "git add"
     ]
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "@commitlint/cli": "^17.7.1",
+    "@commitlint/config-conventional": "^17.7.0",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
     "commitlint": "^17.7.1",
+    "cz-git": "^1.7.1",
+    "czg": "^1.7.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-vue": "^9.17.0",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.1",
-    "prettier-eslint": "^15.0.1"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^17.7.1",
-    "@commitlint/config-conventional": "^17.7.0"
+    "prettier-eslint": "^15.0.1",
+    "standard-changelog": "^5.0.0"
   }
 }
