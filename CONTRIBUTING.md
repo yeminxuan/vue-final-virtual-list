@@ -8,9 +8,6 @@
 
 **Insufficient information issue WILL BE CLOSED directly because we cannot reproduce them**
 
-- Issues that with feature request should to go to [RFCs](https://github.com/yeminxuan/finalVueVirtualList/rfcs/issues). This helps us managing the project.
-
-Next section is for those who wants to help develop Element Plus.
 
 ## Commit template
 
