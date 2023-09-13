@@ -1,35 +1,105 @@
 <template>
   <div class="fixedVirtualList">
     <h1>fixedVirtualList</h1>
-    <div class="list">
-      <FixedVirtualListScroller
-        :data="listData"
-        :scroll-item-height="46"
-        :visible-item-count="12"
-      >
+    <FixedVirtualListScroller
+      ref="customVirtualList"
+      :data="listData"
+      :scroll-item-height="46"
+      :visible-item-count="20"
+    >
+      <template #default="{ item }">
         <div
-          v-for="(item, index) in listData"
-          :key="index"
           class="item"
+          @click="handle"
         >
-          {{ item.name }}
+          <div class="index">
+            {{ item.id }}
+          </div>
+          <img
+            :src="item.avatarUrl"
+            alt=""
+          >
+          <div class="name">
+            {{ item.name }}
+          </div>
+          <div class="birthDate">
+            {{ item.birthDate }}
+          </div>
+          <div class="isMarried">
+            {{ item.isMarried ? "married" : "spinster" }}
+          </div>
         </div>
-      </FixedVirtualListScroller>
-    </div>
+      </template>
+    </FixedVirtualListScroller>
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
-const listData = ref([
-  { name: "111" },
-  { name: "222" },
-  { name: "333" },
-  { name: "444" },
-  { name: "555" },
-  { name: "666" },
-  { name: "777" },
-  { name: "888" },
-  { name: "999" },
-  { name: "000" },
-]);
+import { ref, onMounted, onBeforeMount } from "vue";
+import type {FixedVirtualListInstance} from '../../../final-vue-virtual-list/src/index.ts';
+import Mock from "mockjs";
+import axios from "axios";
+const listData = ref([]);
+const customVirtualList=ref<FixedVirtualListInstance>();
+const handle = () => {
+  customVirtualList.value?.scrollToTop(1000);
+};
+const mock = () => {
+  Mock.mock("/api/data", {
+    code: 200,
+    msg: "success",
+    "data|5000": [
+      {
+        "id|+1": 1,
+        avatarUrl: "@image",
+        name: "@name",
+        "gender|1": ["man", "woman"],
+        email: "@EMAIL",
+        birthDate: "@date",
+        "isMarried|1": [true, false],
+      },
+    ],
+  });
+};
+const getList = () => {
+  axios({
+    method: "get",
+    url: "/api/data",
+  }).then((response) => {
+    listData.value = response.data.data;
+  });
+};
+onBeforeMount(() => {
+  mock();
+});
+onMounted(() => {
+  getList();
+});
 </script>
+<style style="scoped" lang="less">
+.fixedVirtualList {
+  height: 100%;
+  .fixed-virtual-list-scroller {
+    height: 800px;
+  }
+  .fixed-virtual-list-item {
+    .item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      & > div {
+        padding: 0 5px;
+      }
+      img {
+        padding: 0 5px;
+        width: 20px;
+        object-fit: cover;
+        height: 20px;
+      }
+    }
+  }
+
+  .fixed-virtual-list-item:nth-child(odd) {
+    background-color: #ccc;
+  }
+}
+</style>

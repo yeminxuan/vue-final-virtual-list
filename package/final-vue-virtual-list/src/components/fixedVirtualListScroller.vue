@@ -1,35 +1,38 @@
-<!--
- * @Author: 叶敏轩 mc20000406@163.com
- * @Date: 2023-09-11 16:06:23
- * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-11 20:04:36
- * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/fixedVirtualListScroller.vue
- * @Description: 
--->
 <template>
   <div
     ref="fixedVirtualListScroller"
     class="fixed-virtual-list-scroller"
+    :style="{
+      'overflow-y': direction == 'vertical' ? 'scroll' : 'hidden',
+      'overflow-x': direction == 'vertical' ? 'hidden' : 'scroll',
+    }"
     @scroll.passive="handleScroll"
   >
-    1123123
+    <div ref="rerenderBefore">
+      <slot name="rerenderBefore" />
+    </div>
     <div
       class="fixed-virtual-list-container"
-      :style="{ 'min-width': contentWidth + 'px' }"
+      :style="{ 'min-width': contentWidth, 'min-height': contentHeight }"
     >
       <div
-        v-for="(item, index) in data"
+        v-for="(item, index) in visibleItems"
         :key="index"
-        class="listItem"
+        class="fixed-virtual-list-item"
+        :style="{
+          transform: translateValue(item.data_index),
+        }"
       >
-        {{ data }}
-        <slot />
+        <slot :item="item" />
       </div>
+    </div>
+    <div ref="rerenderAfter">
+      <slot name="rerenderAfter" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, defineExpose } from "vue";
 interface Props {
   data: Array<Object>;
   direction?: string;
@@ -46,20 +49,82 @@ const props = withDefaults(defineProps<Props>(), {
   direction: "vertical",
   visibleItemCount: 0,
 });
+const fixedVirtualListScroller = ref();
+const scrollToTop = (value: number) => {
+  fixedVirtualListScroller.value.scrollTo({
+    top: value,
+    behavior: "smooth",
+  });
+};
+const scrollTop = ref(0);
+const scrollLeft = ref(0);
+const start = ref(0);
+const end = ref(0);
 const contentWidth = computed(() => {
   if (props.direction == "vertical") {
-    return props.data.length * props.scrollItemHeight;
+    return "auto";
   } else {
-    return props.data.length * props.scrollItemWidth;
+    return props.data.length * props.scrollItemWidth + "px";
   }
 });
-const handleScroll = () => {
-  console.log(111);
-  
+const contentHeight = computed(() => {
+  if (props.direction == "vertical") {
+    return props.data.length * props.scrollItemHeight + "px";
+  } else {
+    return "auto";
+  }
+});
+const computedStartAndEnd = () => {
+  if (props.direction == "vertical") {
+    start.value = Math.floor(scrollTop.value / props.scrollItemHeight);
+    end.value = start.value + props.visibleItemCount;
+  } else {
+    start.value = Math.floor(scrollLeft.value / props.scrollItemWidth);
+    end.value = start.value + props.visibleItemCount;
+  }
 };
+const translateValue = computed(() => {
+  return (index: number) => {
+    if (props.direction == "vertical") {
+      return (
+        "translateX(0px) translateY(" + props.scrollItemHeight * index + "px)"
+      );
+    } else {
+      return (
+        "translateX(" +
+        props.scrollItemWidth * item.data_index +
+        "px) translateY(0px)"
+      );
+    }
+  };
+});
+const visibleItems: Ref<T[]> = computed(() => {
+  computedStartAndEnd();
+  props.data.forEach((item: T, index: number) => {
+    item["data_index"] = index;
+  });
+  return props.data.slice(start.value, end.value);
+});
+const handleScroll = () => {
+  if (props.direction == "vertical") {
+    scrollTop.value = fixedVirtualListScroller.value.scrollTop;
+  } else {
+    scrollLeft.value = fixedVirtualListScroller.value.scrollLeft;
+  }
+};
+defineExpose({
+  scrollToTop,
+});
 </script>
 <style lang="less" scoped>
 .fixed-virtual-list-scroller {
   position: relative;
+  height: 100%;
+  .fixed-virtual-list-container {
+    .fixed-virtual-list-item {
+      position: absolute;
+      width: 100%;
+    }
+  }
 }
 </style>
