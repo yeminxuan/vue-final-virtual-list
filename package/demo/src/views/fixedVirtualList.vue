@@ -35,13 +35,13 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeMount } from "vue";
-import type {FixedVirtualListInstance} from '../../../final-vue-virtual-list/src/index.ts';
+import type { FixedVirtualListInstance } from "../../../final-vue-virtual-list/src/index.ts";
 import Mock from "mockjs";
 import axios from "axios";
 const listData = ref([]);
-const customVirtualList=ref<FixedVirtualListInstance>();
+const customVirtualList = ref<FixedVirtualListInstance>();
 const handle = () => {
-  customVirtualList.value?.scrollToTop(1000);
+  customVirtualList.value?.scrollToRow(1290);
 };
 const mock = () => {
   Mock.mock("/api/data", {
@@ -50,7 +50,7 @@ const mock = () => {
     "data|5000": [
       {
         "id|+1": 1,
-        avatarUrl: "@image",
+        avatarUrl: "/avator/w.jpg",
         name: "@name",
         "gender|1": ["man", "woman"],
         email: "@EMAIL",
@@ -89,6 +89,9 @@ onMounted(() => {
       & > div {
         padding: 0 5px;
       }
+      .index {
+        width: 50px;
+      }
       img {
         padding: 0 5px;
         width: 20px;
@@ -98,7 +101,7 @@ onMounted(() => {
     }
   }
 
-  .fixed-virtual-list-item:nth-child(odd) {
+  .fixed-virtual-list-item {
     background-color: #ccc;
   }
 }

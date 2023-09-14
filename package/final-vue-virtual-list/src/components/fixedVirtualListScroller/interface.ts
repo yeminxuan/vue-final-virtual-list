@@ -1,5 +1,5 @@
 import type { UnwrapRef } from "vue";
-import FixedVirtualListComp from "./fixedVirtualListScroller.vue";
+import FixedVirtualListComp from "./index.vue";
 export type FixedVirtualListInstance = InstanceType<typeof FixedVirtualListComp> &
   UnwrapRef<{
     scrollToTop(top: number): void;
