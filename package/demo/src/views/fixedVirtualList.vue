@@ -1,6 +1,6 @@
 <template>
   <div class="fixedVirtualList">
-    <h1>fixedVirtualList</h1>
+    <Header />
     <FixedVirtualListScroller
       ref="customVirtualList"
       :data="listData"
@@ -36,12 +36,13 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeMount } from "vue";
 import type { FixedVirtualListInstance } from "../../../final-vue-virtual-list/src/index.ts";
+import Header from "@/components/header.vue";
 import Mock from "mockjs";
 import axios from "axios";
 const listData = ref([]);
 const customVirtualList = ref<FixedVirtualListInstance>();
 const handle = () => {
-  customVirtualList.value?.scrollToRow(1290);
+  console.log();
 };
 const mock = () => {
   Mock.mock("/api/data", {

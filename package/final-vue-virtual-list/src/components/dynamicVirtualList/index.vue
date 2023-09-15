@@ -1,7 +1,15 @@
+<!--
+ * @Author: 叶敏轩 mc20000406@163.com
+ * @Date: 2023-09-15 11:54:50
+ * @LastEditors: 叶敏轩 mc20000406@163.com
+ * @LastEditTime: 2023-09-15 18:55:42
+ * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
+ * @Description: 
+-->
 <template>
   <div
-    ref="fixedVirtualListScroller"
-    class="fixed-virtual-list-scroller"
+    ref="dynamicVirtualListScroll"
+    class="dynamic-virtual-list-scroll"
     :style="{
       'overflow-y': direction == 'vertical' ? 'scroll' : 'hidden',
       'overflow-x': direction == 'vertical' ? 'hidden' : 'scroll',
@@ -9,13 +17,14 @@
     @scroll.passive="handleScroll"
   >
     <div
-      class="fixed-virtual-list-container"
+      class="dynamic-virtual-list-container"
       :style="{ 'min-width': contentWidth, 'min-height': contentHeight }"
     >
       <div
         v-for="(item, index) in visibleItems"
         :key="index"
-        class="fixed-virtual-list-item"
+        ref="dynamicVirtualListItemRef"
+        class="dynamic-virtual-list-item"
         :style="{
           transform: translateValue(item.data_index),
         }"
@@ -26,15 +35,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, defineExpose } from "vue";
-interface CustomObject {
-  data_index: number;
-}
+import { ref, computed, nextTick, onMounted } from "vue";
 interface Props {
   data: Array<Object>;
   direction?: string;
-  scrollItemWidth?: number;
-  scrollItemHeight?: number;
+  minItemWidth?: number;
+  minItemHeight?: number;
   visibleItemCount: number;
   gridItemRowCount?: number;
 }
@@ -48,58 +54,32 @@ const props = withDefaults(defineProps<Props>(), {
   visibleItemCount: 0,
   gridItemRowCount: 0,
 });
-const fixedVirtualListScroller = ref();
-const scrollToTop = (value: number) => {
-  fixedVirtualListScroller.value.scrollTo({
-    top: value,
-    behavior: "smooth",
-  });
-};
-const scrollToLeft = (value: number) => {
-  fixedVirtualListScroller.value.scrollTo({
-    left: value,
-    behavior: "smooth",
-  });
-};
-const scrollToRow = (index: number) => {
-  let scrollDistance = index * props.scrollItemHeight - props.scrollItemHeight;
-  fixedVirtualListScroller.value.scrollTo({
-    top: scrollDistance,
-    behavior: "smooth",
-  });
-};
+const dynamicVirtualListScroll = ref();
 const scrollTop = ref(0);
 const scrollLeft = ref(0);
 const start = ref(0);
 const end = ref(0);
+const dynamicVirtualListItemRef = ref();
+const resizeObserver = ref();
+const createObserver = () => {
+  resizeObserver.value = new ResizeObserver((entries) => {
+    console.log(entries);
+  });
+};
 const contentWidth = computed(() => {
   if (props.direction == "vertical") {
     return "auto";
   } else {
-    return props.data.length * props.scrollItemWidth + "px";
+    return props.data.length * props.minItemWidth + "px";
   }
 });
 const contentHeight = computed(() => {
   if (props.direction == "vertical") {
-    return props.data.length * props.scrollItemHeight + "px";
+    return props.data.length * props.minItemHeight + "px";
   } else {
     return "auto";
   }
 });
-const translateValue = computed(() => {
-  return (index: number) => {
-    if (props.direction == "vertical") {
-      return (
-        "translateX(0px) translateY(" + props.scrollItemHeight * index + "px)"
-      );
-    } else {
-      return (
-        "translateX(" + props.scrollItemWidth * index + "px) translateY(0px)"
-      );
-    }
-  };
-});
-
 const visibleItems = computed(<T extends CustomObject>(): Array<T> => {
   computedStartAndEnd();
   props.data.forEach((item: Object, index: number) => {
@@ -110,34 +90,44 @@ const visibleItems = computed(<T extends CustomObject>(): Array<T> => {
 });
 const computedStartAndEnd = () => {
   if (props.direction == "vertical") {
-    start.value = Math.floor(scrollTop.value / props.scrollItemHeight);
+    start.value = Math.floor(scrollTop.value / props.minItemHeight);
     end.value = start.value + props.visibleItemCount;
   } else {
-    start.value = Math.floor(scrollLeft.value / props.scrollItemWidth);
+    start.value = Math.floor(scrollLeft.value / props.minItemWidth);
     end.value = start.value + props.visibleItemCount;
   }
 };
+const clickItem = (el, index) => {
+  createObserver();
+  resizeObserver.value.observe(el);
+};
+
+const translateValue = computed(() => {
+  return (index: number) => {
+    if (props.direction == "vertical") {
+      return (
+        "translateX(0px) translateY(" + props.minItemHeight * index + "px)"
+      );
+    } else {
+      return "translateX(" + props.minItemWidth * index + "px) translateY(0px)";
+    }
+  };
+});
 const handleScroll = () => {
   if (props.direction == "vertical") {
-    scrollTop.value = fixedVirtualListScroller.value.scrollTop;
+    scrollTop.value = dynamicVirtualListScroll.value.scrollTop;
   } else {
-    scrollLeft.value = fixedVirtualListScroller.value.scrollLeft;
+    scrollLeft.value = dynamicVirtualListScroll.value.scrollLeft;
   }
 };
-defineExpose({
-  scrollToTop,
-  scrollToLeft,
-  scrollToRow,
-});
+onMounted(() => {});
 </script>
-<style lang="less" scoped>
-.fixed-virtual-list-scroller {
+<style scoped lang="less">
+.dynamic-virtual-list-scroll {
   position: relative;
-  height: 100%;
-  .fixed-virtual-list-container {
-    .fixed-virtual-list-item {
+  .dynamic-virtual-list-container {
+    .dynamic-virtual-list-item {
       position: absolute;
-      width: 100%;
     }
   }
 }

@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* **fix typescript prompts errors:** fix "data_index" is not found ([e41d73f](https://github.com/yeminxuan/vue-final-virtual-list/commit/e41d73f6715dc2a92d84329efd68f0166e6b9ab2))
 * **type:** fix generic ([29c5dc6](https://github.com/yeminxuan/vue-final-virtual-list/commit/29c5dc6d15db63c23b6cddbb6b2ece412268675b))
 
 
