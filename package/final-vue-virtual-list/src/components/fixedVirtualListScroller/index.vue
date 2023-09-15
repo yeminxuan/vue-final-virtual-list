@@ -28,6 +28,9 @@
 <script setup lang="ts">
 import { ref, computed, defineExpose } from "vue";
 import type { Ref } from "vue";
+interface CustomObject {
+  data_index: number;
+}
 interface Props {
   data: Array<Object>;
   direction?: string;
@@ -44,7 +47,7 @@ const props = withDefaults(defineProps<Props>(), {
   scrollItemHeight: 0,
   direction: "vertical",
   visibleItemCount: 0,
-  gridItemRowCount: 0
+  gridItemRowCount: 0,
 });
 const fixedVirtualListScroller = ref();
 const scrollToTop = (value: number) => {
@@ -97,13 +100,14 @@ const translateValue = computed(() => {
     }
   };
 });
-const visibleItems = computed(() => {
+
+const visibleItems = computed(<T extends CustomObject[]>(): Array<T> => {
   computedStartAndEnd();
-  props.data.forEach((item: object, index: number) => {
-    // @ts-ignore
-    item["data_index"] = index;
+  props.data.forEach((item: Object, index: number) => {
+    const customItem = item as CustomObject;
+    customItem["data_index"] = index;
   });
-  return props.data.slice(start.value, end.value);
+  return props.data.slice(start.value, end.value) as T[];
 });
 const computedStartAndEnd = () => {
   if (props.direction == "vertical") {
