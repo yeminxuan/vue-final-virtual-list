@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 11:54:50
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-15 18:55:42
+ * @LastEditTime: 2023-09-15 19:05:19
  * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
  * @Description: 
 -->
@@ -36,6 +36,9 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from "vue";
+interface CustomObject {
+  data_index: number;
+}
 interface Props {
   data: Array<Object>;
   direction?: string;
@@ -48,8 +51,8 @@ const props = withDefaults(defineProps<Props>(), {
   data: () => [],
   displayList: false,
   contentWidth: 0,
-  scrollItemWidth: 0,
-  scrollItemHeight: 0,
+  minItemWidth: 0,
+  minItemHeight: 0,
   direction: "vertical",
   visibleItemCount: 0,
   gridItemRowCount: 0,
