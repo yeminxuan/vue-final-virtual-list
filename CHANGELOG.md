@@ -1,6 +1,11 @@
 # 0.0.0 (2023-09-15)
 
 
+### Bug Fixes
+
+* **type:** fix generic ([29c5dc6](https://github.com/yeminxuan/vue-final-virtual-list/commit/29c5dc6d15db63c23b6cddbb6b2ece412268675b))
+
+
 ### Features
 
 * **add control methods:** add scroll list methods ([9903552](https://github.com/yeminxuan/vue-final-virtual-list/commit/9903552ef88ad746c2ffc0ba418e246e5a384b64))

@@ -101,7 +101,7 @@ const translateValue = computed(() => {
   };
 });
 
-const visibleItems = computed(<T extends CustomObject[]>(): Array<T> => {
+const visibleItems = computed(<T extends CustomObject>(): Array<T> => {
   computedStartAndEnd();
   props.data.forEach((item: Object, index: number) => {
     const customItem = item as CustomObject;
