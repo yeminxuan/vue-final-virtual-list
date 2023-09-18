@@ -1,9 +1,10 @@
-# 0.0.0 (2023-09-15)
+# 0.0.0 (2023-09-18)
 
 
 ### Bug Fixes
 
 * **fix typescript prompts errors:** fix "data_index" is not found ([e41d73f](https://github.com/yeminxuan/vue-final-virtual-list/commit/e41d73f6715dc2a92d84329efd68f0166e6b9ab2))
+* **props types fix:** fix props property not defined bug ([1417cb3](https://github.com/yeminxuan/vue-final-virtual-list/commit/1417cb3f271919582fa66a355ac0b320dac5578f))
 * **type:** fix generic ([29c5dc6](https://github.com/yeminxuan/vue-final-virtual-list/commit/29c5dc6d15db63c23b6cddbb6b2ece412268675b))
 
 

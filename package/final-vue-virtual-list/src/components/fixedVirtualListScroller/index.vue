@@ -26,7 +26,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, defineExpose } from "vue";
+import { ref, computed } from "vue";
 interface CustomObject {
   data_index: number;
 }
