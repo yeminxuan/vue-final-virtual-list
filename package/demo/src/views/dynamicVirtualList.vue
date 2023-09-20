@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 12:18:45
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-15 18:50:18
+ * @LastEditTime: 2023-09-19 12:55:09
  * @FilePath: /finalVirtualList/package/demo/src/views/dynamicVirtualList.vue
  * @Description: 
 -->
@@ -26,6 +26,9 @@
             >
             <div class="name">
               {{ item.name }}
+            </div> 
+            <div class="gender">
+              {{ item.gender }}
             </div>
             <div class="birthDate">
               {{ item.birthDate }}
@@ -44,7 +47,7 @@
 </template>
 <script setup lang="ts">
 import { onBeforeMount, onMounted, ref } from "vue";
-import Header from '@/components/header.vue';
+import Header from "@/components/header.vue";
 import Mock from "mockjs";
 import axios from "axios";
 const listData = ref([]);
@@ -88,7 +91,7 @@ onMounted(() => {
     height: 800px;
   }
   :deep(.dynamic-virtual-list-item) {
-    margin-top: 10px;
+    // margin-top: 10px;
     .item {
       display: flex;
       flex-direction: column;
@@ -97,7 +100,7 @@ onMounted(() => {
         flex-direction: row;
         align-items: center;
         & > div {
-            padding: 0 10px;
+          padding: 0 10px;
         }
         img {
           width: 40px;
@@ -110,7 +113,7 @@ onMounted(() => {
       }
     }
     .item:hover {
-        background-color: aquamarine;
+      background-color: aquamarine;
     }
   }
   :deep(.dynamic-virtual-list-item:first-child) {
