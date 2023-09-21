@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 12:19:00
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-15 12:55:00
+ * @LastEditTime: 2023-09-21 11:43:50
  * @FilePath: /finalVirtualList/package/demo/src/components/header.vue
  * @Description: 
 -->
@@ -13,6 +13,9 @@
     </router-link>
     <router-link to="/dynamicVirtualList">
       dynamicVirtualList
+    </router-link>
+    <router-link to="/test">
+      test
     </router-link>
   </div>
 </template>

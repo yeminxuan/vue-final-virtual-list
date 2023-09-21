@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-11 16:21:24
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-15 12:21:38
+ * @LastEditTime: 2023-09-21 11:41:48
  * @FilePath: /finalVirtualList/package/demo/src/router/index.ts
  * @Description:
  */
@@ -25,6 +25,10 @@ const routeRecordList: RouteRecordRaw[] = [
     path: "/dynamicVirtualList",
     component: () => import("@/views/dynamicVirtualList.vue"),
   },
+  {
+    path: "/test",
+    component: () => import("@/views/test.vue"),
+  }
 ];
 const router = createRouter({
   history: createWebHashHistory(),

@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 11:54:50
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-20 19:59:44
+ * @LastEditTime: 2023-09-21 12:52:38
  * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
  * @Description: 
 -->
@@ -96,9 +96,6 @@ const sizes = async () => {
       let dom = document.querySelector(
         `[data-index="${index}"]`
       ) as HTMLElement;
-      if (!dom) {
-        console.log("不村子");
-      }
       current =
         props.direction === "vertical"
           ? dom
@@ -132,62 +129,100 @@ const updateVisibleItems = async () => {
   /**
    * @Description: update the start/end index method as you scroll
    */
-  const toBottomAccumulator = sizesRes.value[start.value]
-    ? sizesRes.value[start.value + 1].size.accumulator
-    : null;
-  const toTopAccumulator = sizesRes.value[start.value]
-    ? sizesRes.value[start.value].size.accumulator
-    : null;
-  //computed boundary
-  if (start.value < 0) start.value = 0;
-  //scroll down to update the index
-  if (toBottomAccumulator != null && toBottomAccumulator < scrollTop.value) {
-    start.value++;
-    end.value = start.value + props.visibleItemCount;
-    /* there is a bug after limiting the render interval: when scrolling to the end, it cannot scroll to the last dom, which will be solved later
+  if (props.direction === "vertical") {
+    const toBottomAccumulator = sizesRes.value[start.value]
+      ? sizesRes.value[start.value + 1].size.accumulator
+      : null;
+    const toTopAccumulator = sizesRes.value[start.value]
+      ? sizesRes.value[start.value].size.accumulator
+      : null;
+    //computed boundary
+    if (start.value < 0) start.value = 0;
+    //scroll down to update the index
+    if (toBottomAccumulator != null && toBottomAccumulator < scrollTop.value) {
+      start.value++;
+      end.value = start.value + props.visibleItemCount;
+      /* there is a bug after limiting the render interval: when scrolling to the end, it cannot scroll to the last dom, which will be solved later
     bug
     */
-    // if (start.value > props.data.length - props.visibleItemCount) {
-    //   start.value = props.data.length - props.visibleItemCount;
-    // }
-    // if (end.value > props.data.length) {
-    //   end.value = props.data.length;
-    // }
-    await nextTick(() => {
-      let dom = document.querySelector(
-        `[data-index="${end.value - 2}"]`
-      ) as HTMLElement;
-      /*
-       * put a limit on the index to avoid reporting errors
-       * associated with 'when scrolling to the end, it cannot scroll to the last dom' bug
-       */
-      if (!sizesRes.value[end.value - 1]) {
-        return;
-      }
-      /*
+      // if (start.value > props.data.length - props.visibleItemCount) {
+      //   start.value = props.data.length - props.visibleItemCount;
+      // }
+      // if (end.value > props.data.length) {
+      //   end.value = props.data.length;
+      // }
+      await nextTick(() => {
+        let dom = document.querySelector(
+          `[data-index="${end.value - 2}"]`
+        ) as HTMLElement;
+        /*
+         * put a limit on the index to avoid reporting errors
+         * associated with 'when scrolling to the end, it cannot scroll to the last dom' bug
+         */
+        if (!sizesRes.value[end.value - 1]) {
+          return;
+        }
+        /*
       The current dom's 'translate' distance is equal to the previous dom's 'translate' plus the current dom's 'offsetHeight，dom size is equal to the current dom 'offsetHeight'
       eg: currently 99,scroll mode is 'vertical'
       99th HTMLElement size = current dom 'offsetHeight'
       'translate' distance of 99th HTMLElement = 98th HTMLElement 'translate' distance + 98th HTMLElement 'offsetHeight' property
       */
-      sizesRes.value[end.value - 1].size = {
-        size: (
-          document.querySelector(
-            `[data-index="${end.value - 1}"]`
-          ) as HTMLElement
-        ).offsetHeight,
-        accumulator:
-          sizesRes.value[end.value - 2].size.accumulator + dom.offsetHeight,
-      };
-      if (sizesRes.value[end.value - 1].size.accumulator > totalSize.value) {
-        totalSize.value = sizesRes.value[end.value - 1].size.accumulator;
-      }
-    });
-  }
-  //scroll up to update the index
-  if (toTopAccumulator != null && toTopAccumulator > scrollTop.value) {
-    start.value--;
-    end.value = start.value + props.visibleItemCount;
+
+        sizesRes.value[end.value - 1].size = {
+          size: (
+            document.querySelector(
+              `[data-index="${end.value - 1}"]`
+            ) as HTMLElement
+          ).offsetHeight,
+          accumulator:
+            sizesRes.value[end.value - 2].size.accumulator + dom.offsetHeight,
+        };
+        if (sizesRes.value[end.value - 1].size.accumulator > totalSize.value) {
+          totalSize.value = sizesRes.value[end.value - 1].size.accumulator;
+        }
+      });
+    }
+    //scroll up to update the index
+    if (toTopAccumulator != null && toTopAccumulator > scrollTop.value) {
+      start.value--;
+      end.value = start.value + props.visibleItemCount;
+    }
+  } else {
+    const toBottomAccumulator = sizesRes.value[start.value]
+      ? sizesRes.value[start.value + 1].size.accumulator
+      : null;
+    const toTopAccumulator = sizesRes.value[start.value]
+      ? sizesRes.value[start.value].size.accumulator
+      : null;
+    if (toBottomAccumulator != null && toBottomAccumulator < scrollLeft.value) {
+      start.value++;
+      end.value = start.value + props.visibleItemCount;
+      await nextTick(() => {
+        let dom = document.querySelector(
+          `[data-index="${end.value - 2}"]`
+        ) as HTMLElement;
+        if (!sizesRes.value[end.value - 1]) {
+          return;
+        }
+        sizesRes.value[end.value - 1].size = {
+          size: (
+            document.querySelector(
+              `[data-index="${end.value - 1}"]`
+            ) as HTMLElement
+          ).offsetWidth,
+          accumulator:
+            sizesRes.value[end.value - 2].size.accumulator + dom.offsetWidth,
+        };
+        if (sizesRes.value[end.value - 1].size.accumulator > totalSize.value) {
+          totalSize.value = sizesRes.value[end.value - 1].size.accumulator;
+        }
+      });
+    }
+    if (toTopAccumulator != null && toTopAccumulator > scrollLeft.value) {
+      start.value--;
+      end.value = start.value + props.visibleItemCount;
+    }
   }
 };
 const translateValue = computed(() => {
@@ -203,9 +238,9 @@ const translateValue = computed(() => {
           "px)";
       } else {
         dom.style.transform =
-          "translateX(0px) translateY(" +
+          "translateX(" +
           sizesRes.value[index].size.accumulator +
-          "px)";
+          "px) translateY(0px)";
       }
     });
   };
@@ -217,10 +252,6 @@ const handleScroll = () => {
     scrollLeft.value = dynamicVirtualListScroll.value.scrollLeft;
   }
 };
-interface ScrollInfo {
-  start: number;
-  end: number;
-}
 watch(
   () => props.data,
   async (newVal) => {
@@ -234,13 +265,24 @@ watch(
     updateVisibleItems();
   }
 );
-onBeforeMount(() => {});
+watch(
+  () => scrollLeft.value,
+  () => {
+    updateVisibleItems();
+  }
+);
+onBeforeMount(() => {
+  sizes();
+  data.value = props.data;
+});
 onMounted(() => {});
 </script>
 <style scoped lang="less">
 .dynamic-virtual-list-scroll {
   position: relative;
   .dynamic-virtual-list-container {
+    display: flex;
+    flex-direction: row;
     .dynamic-virtual-list-item {
       position: absolute;
     }

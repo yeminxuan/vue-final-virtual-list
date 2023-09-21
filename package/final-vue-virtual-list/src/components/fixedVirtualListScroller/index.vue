@@ -135,6 +135,7 @@ defineExpose({
   position: relative;
   height: 100%;
   .fixed-virtual-list-container {
+    display: flex;
     .fixed-virtual-list-item {
       position: absolute;
       width: 100%;
