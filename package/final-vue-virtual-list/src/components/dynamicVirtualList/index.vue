@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 11:54:50
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-21 12:52:38
+ * @LastEditTime: 2023-09-21 19:59:41
  * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
  * @Description: 
 -->
@@ -252,6 +252,56 @@ const handleScroll = () => {
     scrollLeft.value = dynamicVirtualListScroll.value.scrollLeft;
   }
 };
+const scrollToTop = () => {};
+const scrollToLeft = () => {};
+const scrollToRow = (index: number) => {
+  nextTick(() => {
+    // let dom = document.querySelector(
+    //   `[data-index="${index - 1}"]`
+    // ) as HTMLElement;
+    // if (a == undefined) {
+    //   throw Error(
+    //     `[final-vue-virtual-list]:  Line ${index} data is not defined`
+    //   );
+    // }
+    const startTime = performance.now();
+    const duration = 1000;
+    let currentIndex = 0;
+    const cb = (time: number) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      console.log(sizesRes.value);
+      let newPosition = 0;
+      if (end.value <= index) {
+        newPosition =
+          scrollTop.value +
+          (sizesRes.value[currentIndex].size.accumulator - scrollTop.value) *
+            progress;
+      }
+
+      // if (end.value > index) {
+      //   console.log('已滚动的距离',scrollTop.value);
+
+      //   newPosition = scrollTop.value + (sizesRes.value[end.value - 1].size.accumulator * progress);
+      // }
+      dynamicVirtualListScroll.value.scrollTo(0, newPosition);
+      console.log(elapsed < duration);
+
+      if (elapsed < duration) {
+        requestAnimationFrame(cb);
+      }
+    };
+    requestAnimationFrame(cb);
+  });
+};
+const easeInOutQuad = (t: number) => {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+};
+defineExpose({
+  scrollToLeft,
+  scrollToTop,
+  scrollToRow,
+});
 watch(
   () => props.data,
   async (newVal) => {
@@ -273,7 +323,6 @@ watch(
 );
 onBeforeMount(() => {
   sizes();
-  data.value = props.data;
 });
 onMounted(() => {});
 </script>

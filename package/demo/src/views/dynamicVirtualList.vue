@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 12:18:45
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-21 13:05:38
+ * @LastEditTime: 2023-09-21 17:18:03
  * @FilePath: /finalVirtualList/package/demo/src/views/dynamicVirtualList.vue
  * @Description: 
 -->
@@ -11,7 +11,12 @@
     <Header />
     <div class="control">
       <div class="scrollTo">
-        <input type="text"><button>scroll To</button>
+        <input
+          v-model="scrollRowValue"
+          type="text"
+        ><button @click="scrollToRow">
+          scroll To Row
+        </button>
       </div>
       <div class="changeScrollDirection">
         <input
@@ -24,6 +29,7 @@
     </div>
     <DynamicVirtualListScroller
       v-if="!isHorizontal"
+      ref="virtualDynamicVirtualScrollListRef"
       class="vertical"
       :data="listData"
       :visible-item-count="20"
@@ -102,7 +108,9 @@ import { onBeforeMount, onMounted, ref } from "vue";
 import Header from "@/components/header.vue";
 import Mock from "mockjs";
 import axios from "axios";
+const scrollRowValue = ref("");
 const listData = ref([]);
+const virtualDynamicVirtualScrollListRef = ref();
 const mock = () => {
   Mock.mock("/api/dynamicData", {
     code: 200,
@@ -134,6 +142,9 @@ const getList = () => {
   }).then((response) => {
     listData.value = response.data.data;
   });
+};
+const scrollToRow = () => {
+  virtualDynamicVirtualScrollListRef.value.scrollToRow(Number(scrollRowValue.value));
 };
 onBeforeMount(() => {
   mock();
