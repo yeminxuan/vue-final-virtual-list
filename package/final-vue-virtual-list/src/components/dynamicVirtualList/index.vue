@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 11:54:50
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-21 19:59:41
+ * @LastEditTime: 2023-09-22 17:24:05
  * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
  * @Description: 
 -->
@@ -256,37 +256,26 @@ const scrollToTop = () => {};
 const scrollToLeft = () => {};
 const scrollToRow = (index: number) => {
   nextTick(() => {
-    // let dom = document.querySelector(
-    //   `[data-index="${index - 1}"]`
-    // ) as HTMLElement;
-    // if (a == undefined) {
-    //   throw Error(
-    //     `[final-vue-virtual-list]:  Line ${index} data is not defined`
-    //   );
-    // }
     const startTime = performance.now();
     const duration = 1000;
     let currentIndex = 0;
     const cb = (time: number) => {
+      //当前动画帧的时间
       const elapsed = time - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      console.log(sizesRes.value);
+      //当前动画帧的时间占设定滚动时间的百分比
+      let percent = Math.min(elapsed / duration, 1);
+      if (percent < 0) percent = 0;
+      currentIndex = Math.floor(index * percent);
       let newPosition = 0;
-      if (end.value <= index) {
-        newPosition =
-          scrollTop.value +
-          (sizesRes.value[currentIndex].size.accumulator - scrollTop.value) *
-            progress;
-      }
-
-      // if (end.value > index) {
-      //   console.log('已滚动的距离',scrollTop.value);
-
-      //   newPosition = scrollTop.value + (sizesRes.value[end.value - 1].size.accumulator * progress);
-      // }
+      if (currentIndex > index) return;
+      let distance =
+        currentIndex == 0
+          ? sizesRes.value[currentIndex].size.accumulator - scrollTop.value
+          : sizesRes.value[currentIndex - 1].size.accumulator - scrollTop.value;
+      // 已滚动的距离 + （当前索引的dom的位移距离 - 已滚动的距离） * 当前动画帧的时间占设定滚动时间的百分比 = 实际滚动距离
+      newPosition = scrollTop.value + distance * percent;
+      //调用滚动事件
       dynamicVirtualListScroll.value.scrollTo(0, newPosition);
-      console.log(elapsed < duration);
-
       if (elapsed < duration) {
         requestAnimationFrame(cb);
       }
