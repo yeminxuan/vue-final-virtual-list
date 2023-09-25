@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 11:54:50
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-22 17:24:05
+ * @LastEditTime: 2023-09-25 19:15:29
  * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
  * @Description: 
 -->
@@ -29,9 +29,7 @@
         ref="dynamicVirtualListItemRef"
         :data-index="item.data_index"
         class="dynamic-virtual-list-item"
-        :style="{
-          transform: translateValue(item.data_index),
-        }"
+        :style="{ transform: translateValue(item.data_index) }"
       >
         <slot :item="item" />
       </div>
@@ -92,30 +90,32 @@ const sizes = async () => {
   let accumulator = 0;
   let current;
   await nextTick(() => {
-    data.value.forEach((item: ExtraData, index: number) => {
-      let dom = document.querySelector(
-        `[data-index="${index}"]`
-      ) as HTMLElement;
-      current =
-        props.direction === "vertical"
-          ? dom
-            ? dom.offsetHeight || props.minItemHeight
-            : props.minItemHeight
-          : dom
-            ? dom.offsetWidth || props.minItemWidth
-            : props.minItemWidth;
+    if (data.value.length > 0) {
+      data.value.forEach((item: ExtraData, index: number) => {
+        let dom = document.querySelector(
+          `[data-index="${index}"]`
+        ) as HTMLElement;
+        current =
+          props.direction === "vertical"
+            ? dom
+              ? dom.offsetHeight || props.minItemHeight
+              : props.minItemHeight
+            : dom
+              ? dom.offsetWidth || props.minItemWidth
+              : props.minItemWidth;
 
-      let obj: Size = {
-        accumulator,
-        size: current,
-      };
-      accumulator += current;
-      item["size"] = obj;
-      arr.push({
-        ...item,
-        size: obj,
+        let obj: Size = {
+          accumulator,
+          size: current,
+        };
+        accumulator += current;
+        item["size"] = obj;
+        arr.push({
+          ...item,
+          size: obj,
+        });
       });
-    });
+    }
     sizesRes.value = arr;
   });
 };
@@ -227,22 +227,21 @@ const updateVisibleItems = async () => {
 };
 const translateValue = computed(() => {
   return (index: number) => {
-    nextTick(() => {
-      let dom = document.querySelector(
-        `[data-index="${index}"]`
-      ) as HTMLElement;
+    if (sizesRes.value.length !== 0) {
       if (props.direction == "vertical") {
-        dom.style.transform =
+        return (
           "translateX(0px) translateY(" +
           sizesRes.value[index].size.accumulator +
-          "px)";
+          "px)"
+        );
       } else {
-        dom.style.transform =
+        return (
           "translateX(" +
           sizesRes.value[index].size.accumulator +
-          "px) translateY(0px)";
+          "px) translateY(0px)"
+        );
       }
-    });
+    }
   };
 });
 const handleScroll = () => {
@@ -252,40 +251,62 @@ const handleScroll = () => {
     scrollLeft.value = dynamicVirtualListScroll.value.scrollLeft;
   }
 };
-const scrollToTop = () => {};
-const scrollToLeft = () => {};
+const currentIndex = ref(0);
+const stagedIndex = ref(0);
+const scrollToTop = (position: number) => {
+  dynamicVirtualListScroll.value.scrollTo(0, position);
+};
+const scrollToLeft = (position: number) => {
+  dynamicVirtualListScroll.value.scrollTo(position, 0);
+};
 const scrollToRow = (index: number) => {
-  nextTick(() => {
-    const startTime = performance.now();
-    const duration = 1000;
-    let currentIndex = 0;
-    const cb = (time: number) => {
-      //当前动画帧的时间
-      const elapsed = time - startTime;
-      //当前动画帧的时间占设定滚动时间的百分比
-      let percent = Math.min(elapsed / duration, 1);
-      if (percent < 0) percent = 0;
-      currentIndex = Math.floor(index * percent);
-      let newPosition = 0;
-      if (currentIndex > index) return;
-      let distance =
-        currentIndex == 0
-          ? sizesRes.value[currentIndex].size.accumulator - scrollTop.value
-          : sizesRes.value[currentIndex - 1].size.accumulator - scrollTop.value;
-      // 已滚动的距离 + （当前索引的dom的位移距离 - 已滚动的距离） * 当前动画帧的时间占设定滚动时间的百分比 = 实际滚动距离
-      newPosition = scrollTop.value + distance * percent;
-      //调用滚动事件
-      dynamicVirtualListScroll.value.scrollTo(0, newPosition);
-      if (elapsed < duration) {
-        requestAnimationFrame(cb);
-      }
-    };
-    requestAnimationFrame(cb);
-  });
+  /**
+   * @Description: scroll to row method
+   * @param {number} index line number
+   */
+  if (index > props.data.length) {
+    index = props.data.length;
+  }
+  const startTime = performance.now();
+  console.log(startTime);
+  
+  const duration = 10000;
+  let percent = 0;
+  stagedIndex.value = currentIndex.value - index;
+  const cb = (time: number) => {
+    //Time of the current animation frame
+    const elapsed = time - startTime;
+    //The time of the current animation frame as a percentage of the set scrolling time
+    percent = Math.min(elapsed / duration, 1);
+    if (percent < 0) percent = 0;
+    let newPosition = 0;
+    let distance = 0;
+    //to bottom scroll
+    if (currentIndex.value <= index) {
+      // currentIndex.value = 0;
+      currentIndex.value = Math.floor(index * percent);
+    }
+    //to up scroll
+    else if (currentIndex.value > index) {
+      currentIndex.value = Math.floor(
+        stagedIndex.value - (stagedIndex.value - index) * percent
+      );
+    }
+    distance =
+      currentIndex.value == 0
+        ? sizesRes.value[currentIndex.value].size.accumulator - scrollTop.value
+        : sizesRes.value[currentIndex.value - 1].size.accumulator -
+          scrollTop.value;
+    newPosition = scrollTop.value + distance * percent;
+    //调用滚动事件
+    dynamicVirtualListScroll.value.scrollTo(0, newPosition);
+    if (elapsed < duration) {
+      requestAnimationFrame(cb);
+    }
+  };
+  requestAnimationFrame(cb);
 };
-const easeInOutQuad = (t: number) => {
-  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-};
+
 defineExpose({
   scrollToLeft,
   scrollToTop,
@@ -313,7 +334,13 @@ watch(
 onBeforeMount(() => {
   sizes();
 });
-onMounted(() => {});
+onMounted(() => {
+  window.addEventListener("resize", async () => {
+    console.log(scrollTop.value);
+
+    await sizes();
+  });
+});
 </script>
 <style scoped lang="less">
 .dynamic-virtual-list-scroll {
