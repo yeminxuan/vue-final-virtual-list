@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 11:54:50
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-25 19:15:29
+ * @LastEditTime: 2023-09-26 20:01:56
  * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
  * @Description: 
 -->
@@ -125,6 +125,8 @@ const visibleItems = computed((): ExtraData[] => {
   });
   return props.data.slice(start.value, end.value);
 });
+//The current scroll to index
+const scrollIndex = ref(0);
 const updateVisibleItems = async () => {
   /**
    * @Description: update the start/end index method as you scroll
@@ -136,6 +138,7 @@ const updateVisibleItems = async () => {
     const toTopAccumulator = sizesRes.value[start.value]
       ? sizesRes.value[start.value].size.accumulator
       : null;
+
     //computed boundary
     if (start.value < 0) start.value = 0;
     //scroll down to update the index
@@ -188,41 +191,6 @@ const updateVisibleItems = async () => {
       start.value--;
       end.value = start.value + props.visibleItemCount;
     }
-  } else {
-    const toBottomAccumulator = sizesRes.value[start.value]
-      ? sizesRes.value[start.value + 1].size.accumulator
-      : null;
-    const toTopAccumulator = sizesRes.value[start.value]
-      ? sizesRes.value[start.value].size.accumulator
-      : null;
-    if (toBottomAccumulator != null && toBottomAccumulator < scrollLeft.value) {
-      start.value++;
-      end.value = start.value + props.visibleItemCount;
-      await nextTick(() => {
-        let dom = document.querySelector(
-          `[data-index="${end.value - 2}"]`
-        ) as HTMLElement;
-        if (!sizesRes.value[end.value - 1]) {
-          return;
-        }
-        sizesRes.value[end.value - 1].size = {
-          size: (
-            document.querySelector(
-              `[data-index="${end.value - 1}"]`
-            ) as HTMLElement
-          ).offsetWidth,
-          accumulator:
-            sizesRes.value[end.value - 2].size.accumulator + dom.offsetWidth,
-        };
-        if (sizesRes.value[end.value - 1].size.accumulator > totalSize.value) {
-          totalSize.value = sizesRes.value[end.value - 1].size.accumulator;
-        }
-      });
-    }
-    if (toTopAccumulator != null && toTopAccumulator > scrollLeft.value) {
-      start.value--;
-      end.value = start.value + props.visibleItemCount;
-    }
   }
 };
 const translateValue = computed(() => {
@@ -250,6 +218,7 @@ const handleScroll = () => {
   } else {
     scrollLeft.value = dynamicVirtualListScroll.value.scrollLeft;
   }
+  console.log(scrollIndex.value);
 };
 const currentIndex = ref(0);
 const stagedIndex = ref(0);
@@ -264,47 +233,53 @@ const scrollToRow = (index: number) => {
    * @Description: scroll to row method
    * @param {number} index line number
    */
-  if (index > props.data.length) {
-    index = props.data.length;
-  }
-  const startTime = performance.now();
-  console.log(startTime);
-  
-  const duration = 10000;
-  let percent = 0;
-  stagedIndex.value = currentIndex.value - index;
-  const cb = (time: number) => {
-    //Time of the current animation frame
-    const elapsed = time - startTime;
-    //The time of the current animation frame as a percentage of the set scrolling time
-    percent = Math.min(elapsed / duration, 1);
-    if (percent < 0) percent = 0;
-    let newPosition = 0;
-    let distance = 0;
-    //to bottom scroll
-    if (currentIndex.value <= index) {
-      // currentIndex.value = 0;
-      currentIndex.value = Math.floor(index * percent);
-    }
-    //to up scroll
-    else if (currentIndex.value > index) {
-      currentIndex.value = Math.floor(
-        stagedIndex.value - (stagedIndex.value - index) * percent
+  scrollIndex.value = 0;
+  if (index > scrollIndex.value) {
+    let startTime = performance.now();
+    console.log(startTime);
+
+    let percent = 0;
+    let duration = 3500;
+    if (scrollIndex.value >= index) return;
+    const cb = (time: number) => {
+      //Time of the current animation frame
+      let elapsed = time - startTime;
+      //The time of the current animation frame as a percentage of the set scrolling time
+      percent = Math.min(elapsed / duration, 1);
+      if (percent < 0) percent = 0;
+      let distance = sizesRes.value[scrollIndex.value + 1].size.accumulator;
+      console.log(distance);
+      console.log(
+        sizesRes.value[scrollIndex.value + 1].size.accumulator,
+        scrollTop.value
       );
-    }
-    distance =
-      currentIndex.value == 0
-        ? sizesRes.value[currentIndex.value].size.accumulator - scrollTop.value
-        : sizesRes.value[currentIndex.value - 1].size.accumulator -
-          scrollTop.value;
-    newPosition = scrollTop.value + distance * percent;
-    //调用滚动事件
-    dynamicVirtualListScroll.value.scrollTo(0, newPosition);
-    if (elapsed < duration) {
-      requestAnimationFrame(cb);
-    }
-  };
-  requestAnimationFrame(cb);
+      let newPosition = distance * percent;
+      //调用滚动事件
+      dynamicVirtualListScroll.value.scrollTo(0, newPosition);
+      if (elapsed < duration) {
+        console.log(
+          `A scroll with index ${scrollIndex.value} is being executed`,
+          scrollIndex.value,
+          newPosition,
+          percent
+        );
+        requestAnimationFrame(() => cb(performance.now()));
+      } else {
+        console.log(
+          `The scrolling animation with index ${scrollIndex.value} is complete`,
+          scrollIndex.value,
+          scrollTop.value
+        );
+        percent = 0;
+        startTime = performance.now();
+        scrollIndex.value++;
+        if (scrollIndex.value >= index) return;
+        requestAnimationFrame(() => cb(performance.now()));
+      }
+    };
+
+    requestAnimationFrame(() => cb(performance.now()));
+  }
 };
 
 defineExpose({
@@ -317,6 +292,7 @@ watch(
   async (newVal) => {
     data.value = newVal;
     await sizes();
+    console.log(sizesRes.value);
   }
 );
 watch(
