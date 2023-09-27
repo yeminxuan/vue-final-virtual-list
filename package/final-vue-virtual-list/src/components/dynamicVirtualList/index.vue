@@ -2,7 +2,7 @@
  * @Author: 叶敏轩 mc20000406@163.com
  * @Date: 2023-09-15 11:54:50
  * @LastEditors: 叶敏轩 mc20000406@163.com
- * @LastEditTime: 2023-09-26 20:01:56
+ * @LastEditTime: 2023-09-27 10:29:52
  * @FilePath: /finalVirtualList/package/final-vue-virtual-list/src/components/dynamicVirtualList/index.vue
  * @Description: 
 -->
@@ -220,8 +220,6 @@ const handleScroll = () => {
   }
   console.log(scrollIndex.value);
 };
-const currentIndex = ref(0);
-const stagedIndex = ref(0);
 const scrollToTop = (position: number) => {
   dynamicVirtualListScroll.value.scrollTo(0, position);
 };
@@ -236,24 +234,25 @@ const scrollToRow = (index: number) => {
   scrollIndex.value = 0;
   if (index > scrollIndex.value) {
     let startTime = performance.now();
-    console.log(startTime);
-
-    let percent = 0;
     let duration = 3500;
+    let percent = 0;
     if (scrollIndex.value >= index) return;
     const cb = (time: number) => {
       //Time of the current animation frame
       let elapsed = time - startTime;
       //The time of the current animation frame as a percentage of the set scrolling time
       percent = Math.min(elapsed / duration, 1);
-      if (percent < 0) percent = 0;
-      let distance = sizesRes.value[scrollIndex.value + 1].size.accumulator;
-      console.log(distance);
+      if (scrollIndex.value == 1) {
+        console.log(percent);
+      }
+      let distance =
+        sizesRes.value[scrollIndex.value + 1].size.accumulator -
+        scrollTop.value;
       console.log(
         sizesRes.value[scrollIndex.value + 1].size.accumulator,
         scrollTop.value
       );
-      let newPosition = distance * percent;
+      let newPosition = scrollTop.value + distance * percent;
       //调用滚动事件
       dynamicVirtualListScroll.value.scrollTo(0, newPosition);
       if (elapsed < duration) {
@@ -273,15 +272,17 @@ const scrollToRow = (index: number) => {
         percent = 0;
         startTime = performance.now();
         scrollIndex.value++;
-        if (scrollIndex.value >= index) return;
-        requestAnimationFrame(() => cb(performance.now()));
+        if (scrollIndex.value < index) {
+          requestAnimationFrame(() => cb(performance.now()));
+        } else {
+          console.log("到达目标索引");
+        }
       }
     };
 
     requestAnimationFrame(() => cb(performance.now()));
   }
 };
-
 defineExpose({
   scrollToLeft,
   scrollToTop,
